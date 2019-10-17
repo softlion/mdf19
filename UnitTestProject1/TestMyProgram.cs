@@ -102,7 +102,7 @@ namespace CSharpContestProject
         [TestMethod]
         public void TestPowerPlant()
         {
-            var folder = @"C:\Users\benja\source\repos\UnitTestProject1\TestPowerPlant";
+            var folder = @"C:\dev\repos\mdf19\UnitTestProject1\TestPowerPlant";
             var inputFiles = Directory.EnumerateFiles(folder, "input*.txt").OrderBy(s => Int32.Parse(Path.GetFileNameWithoutExtension(s).Substring(5))).ToList();
             var ouputFiles = Directory.EnumerateFiles(folder, "output*.txt").OrderBy(s => Int32.Parse(Path.GetFileNameWithoutExtension(s).Substring(6))).ToList();
 
@@ -466,38 +466,4 @@ namespace CSharpContestProject
         }
     }
     #endregion
-}
-
-#region helpers
-namespace CSharpContestProject
-{
-    public interface IConsole
-    {
-        string ReadLine();
-        void WriteLine(string line);
-        string Output { get; }
-        string ErrorOutput { get; }
-        void Error(string text);
-    }
-
-    public class MyConsoleReal : IConsole
-    {
-        public string ReadLine() => Console.ReadLine();
-        public void WriteLine(string line) => Console.WriteLine(line);
-        public void Error(string text) => Console.Error.WriteLine(text);
-        public string Output => null;
-        public string ErrorOutput => null;
-    }
-}
-#endregion
-
-namespace CSharpContestProject
-{
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            new MyProgramPowerPlant().Run(new MyConsoleReal());
-        }
-    }
 }

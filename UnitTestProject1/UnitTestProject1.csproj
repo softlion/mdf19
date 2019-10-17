@@ -42,7 +42,9 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helpers.cs" />
     <Compile Include="MyConsoleFake.cs" />
+    <Compile Include="TestMdf.cs" />
     <Compile Include="TestMyProgram.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -54,7 +56,11 @@
       <Version>1.3.2</Version>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Mdf19\Q1\" />
+    <Folder Include="Mdf19\Q2\" />
+    <Folder Include="Mdf19\Q3\" />
+  </ItemGroup>
   <ItemGroup>
     <Content Include="TestChoco\input1.txt" />
     <Content Include="TestChoco\input2.txt" />
