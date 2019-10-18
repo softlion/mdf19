@@ -1,0 +1,74 @@
+Objectif
+
+Vous avez hacké le réseau interne d'Evil Corp afin de surveiller leurs (ex)actions.
+
+Vous êtes dans un célèbre café américain muni de votre laptop prêt à infecter les machines du réseau interne.
+Quand vous infectez une machine, vous pouvez surveiller tous les paquets entrants et sortants 
+(y compris TLS car vous avez résolu P = NP et que votre laptop est quantique). 
+
+=> Cependant, vous voulez minimiser votre empreinte sur le réseau interne et n'infecter qu'un nombre minimal de machines 
+tout en surveillants tous les paquets circulant dans le réseau interne. 
+=> Cela revient à ce que lorsqu'il existe un lien entre 2 machines, au moins une des deux doit être infectée.
+
+=> Le réseau d'Evil Corp a une topologie sous forme d'arbre avec une seule racine.
+
+On vous donne les routes du réseau interne, vous devez calculer l'ensemble minimal des machines qu'il faut infecter 
+pour surveiller tout le réseau.
+
+Données
+
+Entrée
+
+Ligne 1 : 2 entiers N et M compris respectivement entre 1 et 1000 et 1 et N. 
+N représente le nombre d'ordinateurs dans le réseau et M représente l'identifiant de la racine du réseau. 
+Les machines sont identifiées de 0 à N -1
+Lignes de 2 à N + 1 : un entier P compris entre 0 et N-1, représentant le fait que la machine i- 2 a pour parente la machine P où i est le numéro de ligne dans les entrées. Pour la ligne M+2, la valeur est -1 indiquant qu'il n'a pas de parent dans le réseau.
+
+Sortie
+
+Des entiers séparés par un espace représentant les ordinateurs qu'il faut infecter pour surveiller le réseau interne complètement en minimisant votre empreinte.
+
+N.B : l'ordre n'importe pas et il existe plusieurs solutions, il suffit d'en renvoyer une dans un ordre quelconque.
+
+Exemple
+
+Entrée
+
+5 4
+4
+3
+4
+2
+-1
+
+Sortie
+
+3 4
+
+Entrée
+
+5 0
+-1
+0
+0
+0
+0
+
+Sortie
+
+0
+
+Entrée
+
+7 0
+-1
+0
+1
+2
+3
+4
+5
+
+Sortie
+
+1 3 5
