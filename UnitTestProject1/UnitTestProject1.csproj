@@ -44,7 +44,7 @@
   <ItemGroup>
     <Compile Include="Helpers.cs" />
     <Compile Include="MyConsoleFake.cs" />
-    <Compile Include="TestMdf.cs" />
+    <Compile Include="TestMdf19.cs" />
     <Compile Include="TestMyProgram.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

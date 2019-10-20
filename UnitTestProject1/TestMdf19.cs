@@ -14,7 +14,7 @@ namespace CSharpContestProject
         [TestMethod]
         public void TestQ1()
         {
-            var folder = @"C:\dev\repos\mdf19\UnitTestProject1\MDF19\Q1";
+            var folder = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, @"..\..", @"MDF19\Q1"));
             var inputFiles = Directory.EnumerateFiles(folder, "input*.txt").OrderBy(s => Int32.Parse(Path.GetFileNameWithoutExtension(s).Substring(5))).ToList();
             var ouputFiles = Directory.EnumerateFiles(folder, "output*.txt").OrderBy(s => Int32.Parse(Path.GetFileNameWithoutExtension(s).Substring(6))).ToList();
 
@@ -32,11 +32,11 @@ namespace CSharpContestProject
         [TestMethod]
         public void TestQ2()
         {
-            var folder = @"C:\dev\repos\mdf19\UnitTestProject1\MDF19\Q2";
+            var folder = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, @"..\..", @"MDF19\Q2"));
             var inputFiles = Directory.EnumerateFiles(folder, "input*.txt").OrderBy(s => Int32.Parse(Path.GetFileNameWithoutExtension(s).Substring(5))).ToList();
             var ouputFiles = Directory.EnumerateFiles(folder, "output*.txt").OrderBy(s => Int32.Parse(Path.GetFileNameWithoutExtension(s).Substring(6))).ToList();
 
-            for (var i = 13; i < inputFiles.Count; i++)
+            for (var i = 0; i < inputFiles.Count; i++)
             {
                 var inputs = File.ReadAllLines(inputFiles[i]);
                 var console = new MyConsoleFake(inputs);
@@ -50,7 +50,7 @@ namespace CSharpContestProject
         [TestMethod]
         public void TestQ3()
         {
-            var folder = @"C:\dev\repos\mdf19\UnitTestProject1\MDF19\Q3";
+            var folder = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, @"..\..", @"MDF19\Q3"));
             var inputFiles = Directory.EnumerateFiles(folder, "input*.txt").OrderBy(s => Int32.Parse(Path.GetFileNameWithoutExtension(s).Substring(5))).ToList();
             var ouputFiles = Directory.EnumerateFiles(folder, "output*.txt").OrderBy(s => Int32.Parse(Path.GetFileNameWithoutExtension(s).Substring(6))).ToList();
 
@@ -68,7 +68,7 @@ namespace CSharpContestProject
         [TestMethod]
         public void TestQ4()
         {
-            var folder = @"C:\dev\repos\mdf19\UnitTestProject1\MDF19\Q4";
+            var folder = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, @"..\..", @"MDF19\Q4"));
             var inputFiles = Directory.EnumerateFiles(folder, "input*.txt").OrderBy(s => Int32.Parse(Path.GetFileNameWithoutExtension(s).Substring(5))).ToList();
             var ouputFiles = Directory.EnumerateFiles(folder, "output*.txt").OrderBy(s => Int32.Parse(Path.GetFileNameWithoutExtension(s).Substring(6))).ToList();
 
@@ -101,6 +101,10 @@ namespace CSharpContestProject
         }
     }
 
+    /// <summary>
+    /// Etant donné un échiquier avec uniquement un roi blanc et 0+ tours noires, c'est au roi de jouer,
+    /// déterminer si le roi est pat (pat), échec et mat (check-mat), ou s'il peux jouer (still-in-game)
+    /// </summary>
     public class MyProgramQ2
     {
         public void Run(IConsole console)
@@ -123,59 +127,64 @@ namespace CSharpContestProject
                 }
             }
 
-            bool IsEchec((int ligne, int colonne) theroi, List<(int ligne,int colonne)> thetours, bool searchNext = true)
-            {
-                var isEchec1 = thetours.Select(t => t.ligne).Contains(theroi.ligne)
-                              || thetours.Select(t => t.colonne).Contains(theroi.colonne);
 
-                if (!searchNext)
-                    return isEchec1;
-
-                //Il a le droit de prendre la tour!!
-                if (isEchec1)
-                {
-                    var tourACote = thetours.Where(t =>
-                        (t.ligne == theroi.ligne + 1 || t.ligne == theroi.ligne - 1 || t.ligne == theroi.ligne)
-                        && (t.colonne == theroi.colonne + 1 || t.colonne == theroi.colonne - 1 || t.colonne == theroi.colonne)
-                    ).ToList();
-
-                    foreach (var tour in tourACote)
-                    {
-                        var newTours = thetours.ToList();
-                        newTours.Remove(tour);
-                        if (!IsEchec(tour, newTours, false))
-                        {
-                            return false;
-                        }
-                    }
-
-                }
-
-                return isEchec1;
-            }
-
-            var isEchec = IsEchec(roi, tours);
+            var isEchec = IsEchec(roi, tours, true);
             var isPat = 
+                    //4 verticales
                     (roi.ligne<7 ? IsEchec((roi.ligne+1, roi.colonne), tours) : true)
-                    && (roi.ligne>0 ? IsEchec((roi.ligne, roi.colonne), tours) : true)
                     && (roi.ligne>0 ? IsEchec((roi.ligne-1, roi.colonne), tours) : true)
                     && (roi.colonne<7 ? IsEchec((roi.ligne, roi.colonne+1), tours) : true)
                     && (roi.colonne>0 ? IsEchec((roi.ligne, roi.colonne-1), tours) : true)
+                    //4 diagonales (le roi peut prendre une tour!)
                     && (roi.colonne>0 && roi.ligne>0 ? IsEchec((roi.ligne-1, roi.colonne-1), tours) : true)
                     && (roi.colonne<7 && roi.ligne<7 ? IsEchec((roi.ligne+1, roi.colonne+1), tours) : true)
+                    && (roi.colonne < 7 && roi.ligne > 0 ? IsEchec((roi.ligne - 1, roi.colonne + 1), tours) : true)
+                    && (roi.colonne >0 && roi.ligne < 7 ? IsEchec((roi.ligne + 1, roi.colonne - 1), tours) : true)
                 ;
 
+            //still-in-game : si le roi peut encore se déplacer vers une case où il ne sera pas pris dès le tour suivant.
+            //- check-mat : si le roi ne peut se déplacer que dans des positions où il sera pris dès le tour suivant et qu'il est "échec" au tour présent (c'est à dire qu'il serait également pris au tour suivant s'il ne de déplaçait pas).
+            //- pat : si le roi ne peut se déplacer que vers des cases où il sera pris au tour suivant et mais qu'il n'est pas "échec" au tour présent (c'est à dire qu'il ne serait pas pris au tour suivant s'il ne se déplaçait pas).
             var result = isEchec && isPat ? "check-mat"
                 : isPat ? "pat"
                 : "still-in-game";
 
-//still-in-game : si le roi peut encore se déplacer vers une case où il ne sera pas pris dès le tour suivant.
-//- check-mat : si le roi ne peut se déplacer que dans des positions où il sera pris dès le tour suivant et qu'il est "échec" au tour présent (c'est à dire qu'il serait également pris au tour suivant s'il ne de déplaçait pas).
-//- pat : si le roi ne peut se déplacer que vers des cases où il sera pris au tour suivant et mais qu'il n'est pas "échec" au tour présent (c'est à dire qu'il ne serait pas pris au tour suivant s'il ne se déplaçait pas).
-
             //La chaine still-in-game ou check-mat ou pat en fonction de la situation de l’échiquier.
             console.WriteLine($"{result}");
 
+        }
+
+        bool IsEchec((int ligne, int colonne) roi, List<(int ligne, int colonne)> tours, bool searchNext = false)
+        {
+            var remainingTours = tours.ToList();
+            remainingTours.Remove(roi);
+            var isEchec = remainingTours.Select(t => t.ligne).Contains(roi.ligne)
+                           || remainingTours.Select(t => t.colonne).Contains(roi.colonne);
+
+            if (!searchNext)
+                return isEchec;
+
+            //Il a le droit de prendre la tour!!
+            if (isEchec)
+            {
+                var tourACote = tours.Where(t =>
+                    (t.ligne == roi.ligne + 1 || t.ligne == roi.ligne - 1 || t.ligne == roi.ligne)
+                    && (t.colonne == roi.colonne + 1 || t.colonne == roi.colonne - 1 || t.colonne == roi.colonne)
+                ).ToList();
+
+                foreach (var tour in tourACote)
+                {
+                    var newTours = tours.ToList();
+                    newTours.Remove(tour);
+                    if (!IsEchec(tour, newTours, false))
+                    {
+                        return false;
+                    }
+                }
+
+            }
+
+            return isEchec;
         }
     }
 

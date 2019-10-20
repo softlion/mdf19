@@ -28,7 +28,7 @@ namespace CSharpContestProject
         [TestMethod]
         public void TestXml()
         {
-            var folder = @"C:\Users\benja\source\repos\UnitTestProject1\TestXml";
+            var folder = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, @"..\..", @"TestXml"));
             var inputFiles = Directory.EnumerateFiles(folder, "input*.txt").ToList();
             var ouputFiles = Directory.EnumerateFiles(folder, "output*.txt").ToList();
 
@@ -47,7 +47,7 @@ namespace CSharpContestProject
         [TestMethod]
         public void TestDesert()
         {
-            var folder = @"C:\Users\benja\source\repos\UnitTestProject1\TestDesert";
+            var folder = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, @"..\..", @"TestDesert"));
             var inputFiles = Directory.EnumerateFiles(folder, "input*.txt").ToList();
             var ouputFiles = Directory.EnumerateFiles(folder, "output*.txt").ToList();
 
@@ -65,7 +65,7 @@ namespace CSharpContestProject
         [TestMethod]
         public void TestMyProgramCodeSport()
         {
-            var folder = @"C:\Users\benja\source\repos\UnitTestProject1\TestCodeSport";
+            var folder = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, @"..\..", @"TestCodeSport"));
             var inputFiles = Directory.EnumerateFiles(folder, "input*.txt").ToList();
             var ouputFiles = Directory.EnumerateFiles(folder, "output*.txt").ToList();
 
@@ -83,7 +83,7 @@ namespace CSharpContestProject
         [TestMethod]
         public void TestChoco()
         {
-            var folder = @"C:\Users\benja\source\repos\UnitTestProject1\TestChoco";
+            var folder = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, @"..\..", @"TestChoco"));
             var inputFiles = Directory.EnumerateFiles(folder, "input*.txt").ToList();
             var ouputFiles = Directory.EnumerateFiles(folder, "output*.txt").ToList();
 
@@ -102,7 +102,7 @@ namespace CSharpContestProject
         [TestMethod]
         public void TestPowerPlant()
         {
-            var folder = @"C:\dev\repos\mdf19\UnitTestProject1\TestPowerPlant";
+            var folder = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, @"..\..", @"TestPowerPlant"));
             var inputFiles = Directory.EnumerateFiles(folder, "input*.txt").OrderBy(s => Int32.Parse(Path.GetFileNameWithoutExtension(s).Substring(5))).ToList();
             var ouputFiles = Directory.EnumerateFiles(folder, "output*.txt").OrderBy(s => Int32.Parse(Path.GetFileNameWithoutExtension(s).Substring(6))).ToList();
 
