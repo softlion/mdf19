@@ -48,43 +48,34 @@ namespace CSharpContestProject
         }
 
         [TestMethod]
-        public void TestQ3()
+        public void TestFinaleQ1()
         {
-            var folder = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, @"..\..", @"MDF19\Q3"));
+            var folder = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, @"..\..", @"MDF19\FinaleQ1"));
             var inputFiles = Directory.EnumerateFiles(folder, "input*.txt").OrderBy(s => Int32.Parse(Path.GetFileNameWithoutExtension(s).Substring(5))).ToList();
             var ouputFiles = Directory.EnumerateFiles(folder, "output*.txt").OrderBy(s => Int32.Parse(Path.GetFileNameWithoutExtension(s).Substring(6))).ToList();
 
-            for (var i = 0; i < inputFiles.Count; i++)
+            for (var i = 2; i < inputFiles.Count; i++)
             {
                 var inputs = File.ReadAllLines(inputFiles[i]);
                 var console = new MyConsoleFake(inputs);
-                new MyProgramQ3().Run(console);
+                new MyProgramFinaleQ1().Run(console);
 
                 var outputs = File.ReadAllText(ouputFiles[i]);
-                Assert.AreEqual(outputs, console.Output, $"input:{i+1}\nerror:\n{console.ErrorOutput}");
+                //More than one solution: just count the number of infected computers!
+                Assert.AreEqual(
+                    outputs.Split(new []{ ' ' }, StringSplitOptions.RemoveEmptyEntries).Length, 
+                    console.Output.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Length, 
+                    $"input:{i+1}\nExpected:{outputs}\nResult:{console.Output}\nerror:\n{console.ErrorOutput}");
             }
         }
-
-        [TestMethod]
-        public void TestQ4()
-        {
-            var folder = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, @"..\..", @"MDF19\Q4"));
-            var inputFiles = Directory.EnumerateFiles(folder, "input*.txt").OrderBy(s => Int32.Parse(Path.GetFileNameWithoutExtension(s).Substring(5))).ToList();
-            var ouputFiles = Directory.EnumerateFiles(folder, "output*.txt").OrderBy(s => Int32.Parse(Path.GetFileNameWithoutExtension(s).Substring(6))).ToList();
-
-            for (var i = 0; i < inputFiles.Count; i++)
-            {
-                var inputs = File.ReadAllLines(inputFiles[i]);
-                var console = new MyConsoleFake(inputs);
-                new MyProgramQ3().Run(console);
-
-                var outputs = File.ReadAllText(ouputFiles[i]);
-                Assert.AreEqual(outputs, console.Output, $"input:{i+1}\nerror:\n{console.ErrorOutput}");
-            }
-        }
-
     }
 
+    /// <summary>
+    /// Vous etes dans un monde en 2D formés de briques et de trous.
+    /// Vous êtes placé sur une brique.
+    /// Connaissant le terrain (B étant une brique et X étant un trou),
+    /// donnez le nombre de saut maximum que vous pouvez faire, sachant que vous pouvez choisir librement votre brique de départ.
+    /// </summary>
     public class MyProgramQ1
     {
         public void Run(IConsole console)
@@ -94,7 +85,7 @@ namespace CSharpContestProject
             for (var i = 0; i < N; i++)
                 briques += console.ReadLine()[0];
 
-            var r = briques.ToString().Split('X').Max(s => s.Length);
+            var r = briques.Split('X').Max(s => s.Length);
             r = r - 1;
 
             console.WriteLine($"{r}");
@@ -102,7 +93,7 @@ namespace CSharpContestProject
     }
 
     /// <summary>
-    /// Etant donné un échiquier avec uniquement un roi blanc et 0+ tours noires, c'est au roi de jouer,
+    /// Etant donné un échiquier avec uniquement un roi blanc et 0+ tours noires, et où c'est au roi de jouer,
     /// déterminer si le roi est pat (pat), échec et mat (check-mat), ou s'il peux jouer (still-in-game)
     /// </summary>
     public class MyProgramQ2
@@ -188,7 +179,14 @@ namespace CSharpContestProject
         }
     }
 
-    public class MyProgramQ3
+    /// <summary>
+    /// Cf Mdf19\Q3.txt pour l'énoncé
+    /// </summary>
+    /// <remarks>
+    /// C'est une recherche dans un graphe de type "cacheable".
+    /// Un parcours de l'arbre, en partant des feuilles les plus lointaines, et ok.
+    /// </remarks>
+    public class MyProgramFinaleQ1
     {
         public void Run(IConsole console)
         {
@@ -196,7 +194,7 @@ namespace CSharpContestProject
             var N = values[0]; //1..1000 //Nombre de PC
             var M = values[1]; //1..N     //ID de la racine [0..N-1]
 
-            //construire graphe
+            //construit le graphe à partir des données
             var parents = new int[N];
             var nodes = Enumerable.Range(0,N).Select(i => new Node {Id=i, IsRoot = i==M}).ToArray();
             for (var i = 0; i < N; i++)
@@ -221,20 +219,43 @@ namespace CSharpContestProject
             // 2) Si 1 seul noeud, le prendre. Si plusieurs, tester toute la suite :)
 
             var choix = new List<List<int>>();
-            foreach(var noeud0 in nodes.OrderByDescending(n => n.Links.Count).ThenByDescending(n => n.Links.Count))
+            Node node0;
+            while ((node0 = nodes.Where(n0 => !n0.IsTested)
+                       .OrderByDescending(n0 => n0.Links.Count(n => !n.Node.IsTested))
+                       //.ThenBy(n0 => n0.Links.SelectMany(link => link.Node.Links).se.Count(n => !n.Node.IsTested))
+                       .FirstOrDefault()) != null)
             {
-                if(noeud0.IsTested)
-                    continue;
-
-                noeud0.IsInfected = true;
-                noeud0.IsTested = true;
-                foreach (var node in noeud0.Links.Select(l => l.Node))
-                    node.IsTested = true;
-
-                //var nextState = false;
-                //RecursiveCalcul(noeud0, nextState);
+                node0.IsTested = true;
+                node0.IsInfected = !node0.Links.Any(link => link.Node.IsInfected);
+                foreach (var link in node0.Links)
+                {
+                    if (!link.Node.IsTested)
+                    {
+                        link.Node.IsTested = true;
+                        link.Node.IsInfected = !node0.IsInfected;
+                    }
+                }
             }
-            
+
+            while((node0 = nodes.Where(n => !n.IsInfected && !n.Links.Any(l => !l.Node.IsInfected)).FirstOrDefault()) != null)
+            {
+                node0.IsInfected = true;
+            }
+
+            //foreach(var noeud0 in nodes.OrderByDescending(n => n.Links.Count))
+            //{
+            //    if(noeud0.IsTested)
+            //        continue;
+
+            //    noeud0.IsInfected = true;
+            //    noeud0.IsTested = true;
+            //    foreach (var node in noeud0.Links.Select(l => l.Node))
+            //        node.IsTested = true;
+
+            //    //var nextState = false;
+            //    //RecursiveCalcul(noeud0, nextState);
+            //}
+
             var liste = nodes.Where(n => n.IsInfected).Select(n => n.Id).ToList();
             choix.Add(liste);
             foreach (var node in nodes)

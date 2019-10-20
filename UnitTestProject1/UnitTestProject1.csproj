@@ -57,10 +57,9 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Mdf19\FinaleQ1\" />
     <Folder Include="Mdf19\Q1\" />
     <Folder Include="Mdf19\Q2\" />
-    <Folder Include="Mdf19\Q3\" />
-    <Folder Include="Mdf19\Q4\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="TestChoco\input1.txt" />
