@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -47,27 +48,27 @@ namespace CSharpContestProject
             }
         }
 
-        [TestMethod]
-        public void TestFinaleQ1()
-        {
-            var folder = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, @"..\..", @"MDF19\FinaleQ1"));
-            var inputFiles = Directory.EnumerateFiles(folder, "input*.txt").OrderBy(s => Int32.Parse(Path.GetFileNameWithoutExtension(s).Substring(5))).ToList();
-            var ouputFiles = Directory.EnumerateFiles(folder, "output*.txt").OrderBy(s => Int32.Parse(Path.GetFileNameWithoutExtension(s).Substring(6))).ToList();
+        //[TestMethod]
+        //public void TestFinaleQ1()
+        //{
+        //    var folder = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, @"..\..", @"MDF19\FinaleQ1"));
+        //    var inputFiles = Directory.EnumerateFiles(folder, "input*.txt").OrderBy(s => Int32.Parse(Path.GetFileNameWithoutExtension(s).Substring(5))).ToList();
+        //    var ouputFiles = Directory.EnumerateFiles(folder, "output*.txt").OrderBy(s => Int32.Parse(Path.GetFileNameWithoutExtension(s).Substring(6))).ToList();
 
-            for (var i = 2; i < inputFiles.Count; i++)
-            {
-                var inputs = File.ReadAllLines(inputFiles[i]);
-                var console = new MyConsoleFake(inputs);
-                new MyProgramFinaleQ1().Run(console);
+        //    for (var i = 2; i < inputFiles.Count; i++)
+        //    {
+        //        var inputs = File.ReadAllLines(inputFiles[i]);
+        //        var console = new MyConsoleFake(inputs);
+        //        new MyProgramFinaleQ1().Run(console);
 
-                var outputs = File.ReadAllText(ouputFiles[i]);
-                //More than one solution: just count the number of infected computers!
-                Assert.AreEqual(
-                    outputs.Split(new []{ ' ' }, StringSplitOptions.RemoveEmptyEntries).Length, 
-                    console.Output.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Length, 
-                    $"input:{i+1}\nExpected:{outputs}\nResult:{console.Output}\nerror:\n{console.ErrorOutput}");
-            }
-        }
+        //        var outputs = File.ReadAllText(ouputFiles[i]);
+        //        //More than one solution: just count the number of infected computers!
+        //        Assert.AreEqual(
+        //            outputs.Split(new []{ ' ' }, StringSplitOptions.RemoveEmptyEntries).Length, 
+        //            console.Output.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Length, 
+        //            $"input:{i+1}\nExpected:{outputs}\nResult:{console.Output}\nerror:\n{console.ErrorOutput}");
+        //    }
+        //}
     }
 
     /// <summary>
@@ -179,111 +180,124 @@ namespace CSharpContestProject
         }
     }
 
-    /// <summary>
-    /// Cf Mdf19\Q3.txt pour l'énoncé
-    /// </summary>
-    /// <remarks>
-    /// C'est une recherche dans un graphe de type "cacheable".
-    /// Un parcours de l'arbre, en partant des feuilles les plus lointaines, et ok.
-    /// </remarks>
-    public class MyProgramFinaleQ1
-    {
-        public void Run(IConsole console)
-        {
-            var values = console.ReadLine().Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries).Select(Int32.Parse).ToArray();
-            var N = values[0]; //1..1000 //Nombre de PC
-            var M = values[1]; //1..N     //ID de la racine [0..N-1]
+    ///// <summary>
+    ///// Cf Mdf19\Q3.txt pour l'énoncé
+    ///// </summary>
+    ///// <remarks>
+    ///// C'est une recherche dans un graphe de type "cacheable".
+    ///// Un parcours de l'arbre, en partant des feuilles les plus lointaines, et ok.
+    ///// </remarks>
+    //public class MyProgramFinaleQ1
+    //{
+    //    public void Run(IConsole console)
+    //    {
+    //        var values = console.ReadLine().Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries).Select(Int32.Parse).ToArray();
+    //        var N = values[0]; //1..1000 //Nombre de PC
+    //        var M = values[1]; //1..N     //ID de la racine [0..N-1]
 
-            //construit le graphe à partir des données
-            var parents = new int[N];
-            var nodes = Enumerable.Range(0,N).Select(i => new Node {Id=i, IsRoot = i==M}).ToArray();
-            for (var i = 0; i < N; i++)
-            {
-                var parent = parents[i] = Int32.Parse(console.ReadLine()); //-1 si pas de parent
-                if (parent != -1)
-                {
-                    nodes[i].Links.Add((nodes[parents[i]], new LinkProperty()));
-                    nodes[parents[i]].Links.Add((nodes[i], new LinkProperty()));
-                }
-            }
+    //        //construit le graphe à partir des données
+    //        var parents = new int[N];
+    //        var nodes = Enumerable.Range(0,N).Select(i => new Node {Id=i, IsRoot = i==M}).ToArray();
+    //        for (var i = 0; i < N; i++)
+    //        {
+    //            var parent = parents[i] = Int32.Parse(console.ReadLine()); //-1 si pas de parent
+    //            if (parent != -1)
+    //            {
+    //                nodes[i].Links.Add((nodes[parents[i]], new LinkProperty()));
+    //                nodes[parents[i]].Links.Add((nodes[i], new LinkProperty()));
+    //            }
+    //        }
 
-            //lorsqu'il existe un lien entre 2 machines, au moins une des deux doit être infectée.
-            //IsInfected
-            //Algo: (NOK)
-            // 1)infecter un noeud. En déduire tous les noeuds à infecter. Conserver la liste.
-            // 2)recommander avec tous les autres noeuds
-            // 3)choisir la liste avec le moins de noeuds
+    //        //lorsqu'il existe un lien entre 2 machines, au moins une des deux doit être infectée.
+    //        //IsInfected
+    //        //Algo: (NOK)
+    //        // 1)infecter un noeud. En déduire tous les noeuds à infecter. Conserver la liste.
+    //        // 2)recommander avec tous les autres noeuds
+    //        // 3)choisir la liste avec le moins de noeuds
 
-            //Algo2:
-            // 1) trier les noeuds par ordre de plus de liens.
-            // 2) Si 1 seul noeud, le prendre. Si plusieurs, tester toute la suite :)
+    //        //Algo2:
+    //        // 1) trier les noeuds par ordre de plus de liens.
+    //        // 2) Si 1 seul noeud, le prendre. Si plusieurs, tester toute la suite :)
 
-            var choix = new List<List<int>>();
-            Node node0;
-            while ((node0 = nodes.Where(n0 => !n0.IsTested)
-                       .OrderByDescending(n0 => n0.Links.Count(n => !n.Node.IsTested))
-                       //.ThenBy(n0 => n0.Links.SelectMany(link => link.Node.Links).se.Count(n => !n.Node.IsTested))
-                       .FirstOrDefault()) != null)
-            {
-                node0.IsTested = true;
-                node0.IsInfected = !node0.Links.Any(link => link.Node.IsInfected);
-                foreach (var link in node0.Links)
-                {
-                    if (!link.Node.IsTested)
-                    {
-                        link.Node.IsTested = true;
-                        link.Node.IsInfected = !node0.IsInfected;
-                    }
-                }
-            }
+    //        var choix = new List<List<int>>();
+    //        Node node0 = null;
+    //        do
+    //        {
+    //            var subnodes = (from node in nodes
+    //                where !node.IsTested
+    //                let count = node.Links.Count(n => !n.Node.IsTested)
+    //                group node by count
+    //                into sortedNodes
+    //                orderby sortedNodes.Key descending 
+    //                select sortedNodes)
+    //                .FirstOrDefault();
 
-            while((node0 = nodes.Where(n => !n.IsInfected && !n.Links.Any(l => !l.Node.IsInfected)).FirstOrDefault()) != null)
-            {
-                node0.IsInfected = true;
-            }
+    //            if(subnodes.Key == 0)
+    //                break;
 
-            //foreach(var noeud0 in nodes.OrderByDescending(n => n.Links.Count))
-            //{
-            //    if(noeud0.IsTested)
-            //        continue;
+    //            foreach (var node0 in subnodes)
+    //            {
+    //                node0.IsTested = true;
+    //                node0.IsInfected = !node0.Links.Any(link => link.Node.IsInfected);
+    //                foreach (var link in node0.Links)
+    //                {
+    //                    if (!link.Node.IsTested)
+    //                    {
+    //                        link.Node.IsTested = true;
+    //                        link.Node.IsInfected = !node0.IsInfected;
+    //                    }
+    //                }
+    //            }
+    //        }
+    //        while(node0 != null)
 
-            //    noeud0.IsInfected = true;
-            //    noeud0.IsTested = true;
-            //    foreach (var node in noeud0.Links.Select(l => l.Node))
-            //        node.IsTested = true;
+    //        while((node0 = nodes.Where(n => !n.IsInfected && !n.Links.Any(l => !l.Node.IsInfected)).FirstOrDefault()) != null)
+    //        {
+    //            node0.IsInfected = true;
+    //        }
 
-            //    //var nextState = false;
-            //    //RecursiveCalcul(noeud0, nextState);
-            //}
+    //        //foreach(var noeud0 in nodes.OrderByDescending(n => n.Links.Count))
+    //        //{
+    //        //    if(noeud0.IsTested)
+    //        //        continue;
 
-            var liste = nodes.Where(n => n.IsInfected).Select(n => n.Id).ToList();
-            choix.Add(liste);
-            foreach (var node in nodes)
-            {
-                node.IsInfected = false;
-                node.IsTested = false;
-            }
+    //        //    noeud0.IsInfected = true;
+    //        //    noeud0.IsTested = true;
+    //        //    foreach (var node in noeud0.Links.Select(l => l.Node))
+    //        //        node.IsTested = true;
+
+    //        //    //var nextState = false;
+    //        //    //RecursiveCalcul(noeud0, nextState);
+    //        //}
+
+    //        var liste = nodes.Where(n => n.IsInfected).Select(n => n.Id).ToList();
+    //        choix.Add(liste);
+    //        foreach (var node in nodes)
+    //        {
+    //            node.IsInfected = false;
+    //            node.IsTested = false;
+    //        }
             
-            //void RecursiveCalcul(Node node, bool isInfected)
-            //{
-            //    var newNodes = node.Links.Where(l => !l.Node.IsTested).Select(l => l.Node).ToList();
+    //        //void RecursiveCalcul(Node node, bool isInfected)
+    //        //{
+    //        //    var newNodes = node.Links.Where(l => !l.Node.IsTested).Select(l => l.Node).ToList();
 
-            //    foreach (var noeudLie in newNodes)
-            //    {
-            //        //Ne pas l'infecter. Le marquer comme parcouru.
-            //        noeudLie.IsTested = true;
-            //        noeudLie.IsInfected = isInfected;
-            //    }
+    //        //    foreach (var noeudLie in newNodes)
+    //        //    {
+    //        //        //Ne pas l'infecter. Le marquer comme parcouru.
+    //        //        noeudLie.IsTested = true;
+    //        //        noeudLie.IsInfected = isInfected;
+    //        //    }
 
-            //    foreach (var noeudLie in newNodes)
-            //        RecursiveCalcul(noeudLie, !isInfected);
-            //}
+    //        //    foreach (var noeudLie in newNodes)
+    //        //        RecursiveCalcul(noeudLie, !isInfected);
+    //        //}
 
-            var ordisAInfecter = choix.OrderBy(list => list.Count).First();
-            var outputString = ordisAInfecter.Aggregate(new StringBuilder(), (sb, i) => sb.Append(i).Append(' '), sb => sb.ToString());
-            console.WriteLine($"{outputString}");       
-        }
-    }
+    //        var ordisAInfecter = choix.OrderBy(list => list.Count).First();
+    //        var outputString = ordisAInfecter.Aggregate(new StringBuilder(), (sb, i) => sb.Append(i).Append(' '), sb => sb.ToString());
+    //        console.WriteLine($"{outputString}");       
+    //    }
+    //}
 
     public class LinkProperty
     {
@@ -293,6 +307,7 @@ namespace CSharpContestProject
     public class Node
     {
         public int Id;
+        public string Id2;
         public bool IsRoot;
         public bool IsInfected;
         public bool IsTested;
@@ -300,42 +315,42 @@ namespace CSharpContestProject
         public List<(Node Node,LinkProperty Property)> Links = new List<(Node, LinkProperty)>();
         //public List<Node> Links = new List<Node>();
 
-        private bool distanceSetThisPass = false;
+        //private bool distanceSetThisPass = false;
 
-        public void ClearPass() => distanceSetThisPass = false;
+        //public void ClearPass() => distanceSetThisPass = false;
 
-        /// <summary>
-        /// We default to Int32.MaxValue, because a gateway can be isolated from the rest of the board,
-        /// and skynet can be on another isolated part, thus leading to cutting a never reachable link.
-        /// </summary>
-        public void ClearDistances(int gatewayIndex)
-        {
-            Distances[gatewayIndex] = Int32.MaxValue;
-            foreach (var link in Links)
-                link.Property.Weight = 0;
-        }
+        ///// <summary>
+        ///// We default to Int32.MaxValue, because a gateway can be isolated from the rest of the board,
+        ///// and skynet can be on another isolated part, thus leading to cutting a never reachable link.
+        ///// </summary>
+        //public void ClearDistances(int gatewayIndex)
+        //{
+        //    Distances[gatewayIndex] = Int32.MaxValue;
+        //    foreach (var link in Links)
+        //        link.Property.Weight = 0;
+        //}
 
-        public void AddDistance(int gatewayIndex, int distance=1, int increment = 1)
-        {
-            Distances[gatewayIndex] = !distanceSetThisPass ? distance : Distances[gatewayIndex] + distance;
-            distanceSetThisPass = true;
-            foreach (var link in Links.Where(n => !n.Node.distanceSetThisPass))
-                link.Node.AddDistance(gatewayIndex, distance + increment, increment);
-        }
+        //public void AddDistance(int gatewayIndex, int distance=1, int increment = 1)
+        //{
+        //    Distances[gatewayIndex] = !distanceSetThisPass ? distance : Distances[gatewayIndex] + distance;
+        //    distanceSetThisPass = true;
+        //    foreach (var link in Links.Where(n => !n.Node.distanceSetThisPass))
+        //        link.Node.AddDistance(gatewayIndex, distance + increment, increment);
+        //}
 
-        public void AddWeights(int distance = 1, int increment = 1)
-        {
-            foreach (var link in Links)
-                link.Property.Weight += distance;
-            distanceSetThisPass = true;
-            foreach (var link in Links.Where(n => !n.Node.distanceSetThisPass))
-                link.Node.AddWeights(distance + increment, increment);
-        }
+        //public void AddWeights(int distance = 1, int increment = 1)
+        //{
+        //    foreach (var link in Links)
+        //        link.Property.Weight += distance;
+        //    distanceSetThisPass = true;
+        //    foreach (var link in Links.Where(n => !n.Node.distanceSetThisPass))
+        //        link.Node.AddWeights(distance + increment, increment);
+        //}
 
         public void RemoveLink(Node node) => Links.Remove(Links.FirstOrDefault(link => link.Node.Id == node.Id));
 
-        public override bool Equals(object other) => (other as Node)?.Id == Id;
-        protected bool Equals(Node other) => Id == other.Id && Equals(Links, other.Links);
+        public override bool Equals(object other) => ((Node)other).Id == Id;
+        public bool Equals(Node other) => Id == other.Id && Equals(Links, other.Links);
         public override int GetHashCode() => Id;
     }
 
